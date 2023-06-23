@@ -60,14 +60,29 @@ rm -rf "${DERIVED_DATA_PATH}"
 # iOS Simulator
 DERIVED_DATA_PATH=$( mktemp -d )
 xcrun xcodebuild build \
-	$COMMON_SETUP \
+    $COMMON_SETUP \
     -scheme "${FWNAME} (iOS Simulator)" \
-	-derivedDataPath "${DERIVED_DATA_PATH}" \
-	-destination 'generic/platform=iOS Simulator'
+    -derivedDataPath "${DERIVED_DATA_PATH}" \
+    -destination 'generic/platform=iOS Simulator'
 
 rm -rf "${OUTPUT_DIR}/iphonesimulator"
 mkdir -p "${OUTPUT_DIR}/iphonesimulator"
 ditto "${DERIVED_DATA_PATH}/Build/Products/Release-iphonesimulator/${FWNAME}.framework" "${OUTPUT_DIR}/iphonesimulator/${FWNAME}.framework"
+rm -rf "${DERIVED_DATA_PATH}"
+
+#
+
+# xrOS Simulator
+DERIVED_DATA_PATH=$( mktemp -d )
+xcrun xcodebuild build \
+    $COMMON_SETUP \
+    -scheme "${FWNAME}" \
+    -derivedDataPath "${DERIVED_DATA_PATH}" \
+    -destination 'generic/platform=VisionOS Simulator'
+
+rm -rf "${OUTPUT_DIR}/xrsimulator"
+mkdir -p "${OUTPUT_DIR}/xrsimulator"
+ditto "${DERIVED_DATA_PATH}/Build/Products/Release-xrsimulator/${FWNAME}.framework" "${OUTPUT_DIR}/xrsimulator/${FWNAME}.framework"
 rm -rf "${DERIVED_DATA_PATH}"
 
 #
@@ -79,6 +94,10 @@ ditto "${OUTPUT_DIR}/iphoneos/${FWNAME}.framework" "${BASE_PWD}/Frameworks/iphon
 rm -rf "${BASE_PWD}/Frameworks/iphonesimulator"
 mkdir -p "${BASE_PWD}/Frameworks/iphonesimulator"
 ditto "${OUTPUT_DIR}/iphonesimulator/${FWNAME}.framework" "${BASE_PWD}/Frameworks/iphonesimulator/${FWNAME}.framework"
+
+rm -rf "${BASE_PWD}/Frameworks/xrsimulator"
+mkdir -p "${BASE_PWD}/Frameworks/xrsimulator"
+ditto "${OUTPUT_DIR}/xrsimulator/${FWNAME}.framework" "${BASE_PWD}/Frameworks/xrsimulator/${FWNAME}.framework"
 
 rm -rf "${BASE_PWD}/Frameworks/macosx"
 mkdir -p "${BASE_PWD}/Frameworks/macosx"
@@ -95,7 +114,8 @@ xcrun xcodebuild -quiet -create-xcframework \
 	-framework "${OUTPUT_DIR}/iphoneos/${FWNAME}.framework" \
 	-framework "${OUTPUT_DIR}/iphonesimulator/${FWNAME}.framework" \
 	-framework "${OUTPUT_DIR}/macosx/${FWNAME}.framework" \
-	-framework "${OUTPUT_DIR}/macosx_catalyst/${FWNAME}.framework" \
+    -framework "${OUTPUT_DIR}/macosx_catalyst/${FWNAME}.framework" \
+    -framework "${OUTPUT_DIR}/xrsimulator/${FWNAME}.framework" \
 	-output "${BASE_PWD}/Frameworks/${FWNAME}.xcframework"
 
 # Zip archive
